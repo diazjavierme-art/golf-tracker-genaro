@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Golf Genaro">
+<meta name="theme-color" content="#e07830">
+<title>Golf · Genaro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f2ee;--surface:#ffffff;--surface2:#f0ece6;--border:#e8e0d4;
+  --green:#e07830;--greenl:#c85e1a;--gold:#d4920a;--orange:#e0623a;
+  --red:#d94040;--text:#1a1208;--muted:#8a7060;--radius:14px;
+  --accent:#e07830;--accent2:#f5a054;--success:#2d8a4e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{font-family:DM Sans,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.08)}100%{transform:scale(1)}}
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+.nav-btn{flex:1;padding:10px 4px 6px;border:none;background:none;color:var(--muted);font-family:DM Sans,sans-serif;font-size:10px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:color .2s;min-width:44px}
+.nav-btn svg{width:22px;height:22px}
+.nav-btn.active{color:var(--accent)}
+.screen{display:none;min-height:calc(100dvh - 58px);padding-bottom:calc(68px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+.screen.active{display:block;animation:fadeIn .2s ease}
+.header{padding:0;border-bottom:none;position:sticky;top:0;z-index:50}
+.header-inner{background:var(--accent);padding:12px 18px 10px;padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.header-top{display:flex;justify-content:space-between;align-items:center}
+.header h1{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;letter-spacing:-.3px}
+.header p{font-size:12px;color:rgba(255,255,255,.75);margin-top:2px}
+.badge{background:rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.3)}
+.header-tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none}
+.header-tabs::-webkit-scrollbar{display:none}
+.htab{flex:1;min-width:60px;padding:10px 8px;border:none;background:none;color:var(--muted);font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;text-align:center}
+.htab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.wrap{padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.card-title{display:flex;align-items:center;gap:10px}
+.card-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.card-name{font-size:15px;font-weight:700;color:var(--text)}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.card-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--surface2);color:var(--muted)}
+.card-badge.done{color:var(--success);background:rgba(45,138,78,.1)}
+.exercises{border-top:1px solid var(--border)}
+.exercise{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.exercise:last-child{border-bottom:none}
+.ex-name{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.ex-desc{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:10px}
+.ex-meta{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:8px}
+.counter-row{display:flex;align-items:center;justify-content:space-between}
+.counter{display:flex;align-items:center;gap:0}
+.cnt-btn{width:40px;height:40px;border:none;border-radius:8px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.cnt-btn:active{transform:scale(.88)}
+.cnt-minus{background:var(--surface2);color:var(--muted)}
+.cnt-plus{background:var(--accent);color:#fff}
+.cnt-val{min-width:40px;text-align:center;font-size:18px;font-weight:700;color:var(--text)}
+.kpi-bar{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-top:10px}
+.kpi-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.kpi-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
+.kpi-label span:last-child{color:var(--accent);font-weight:600}
+.notes-area{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;resize:none;margin-top:10px;min-height:60px;outline:none;transition:border-color .2s}
+.notes-area:focus{border-color:var(--accent)}
+.hcp-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.hcp-top{padding:16px 18px 4px;display:flex;justify-content:space-between;align-items:center}
+.hcp-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.hcp-sessions{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.hcp-num-row{padding:2px 18px 10px;display:flex;align-items:flex-end;gap:16px}
+.hcp-number{font-family:'DM Serif Display',serif;font-size:96px;line-height:.9;color:var(--accent);transition:color .3s}
+.hcp-number.improved{color:var(--success)}
+.hcp-number.pop{animation:pop .35s ease}
+.hcp-meta{display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
+.hcp-trend{font-size:13px;font-weight:600;color:var(--muted)}
+.hcp-trend.good{color:var(--success)}
+.hcp-trend.bad{color:var(--orange)}
+.hcp-date{font-size:10px;color:var(--muted)}
+.hcp-obj-bar{padding:0 18px 12px}
+.hcp-obj-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
+.hcp-obj-row button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px}
+.hcp-bar-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.hcp-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width .5s ease}
+.hcp-mini{padding:0 18px 10px}
+.hcp-mini-label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.hcp-mini-bars{display:flex;gap:4px;align-items:flex-end;height:30px}
+.hcp-mini-bar{flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:opacity .2s}
+.hcp-actions{border-top:1px solid var(--border);display:flex}
+.hcp-act{flex:1;padding:11px 4px;border:none;background:none;color:var(--muted);font-family:DM Sans,sans-serif;font-size:10px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-right:1px solid var(--border);transition:color .2s}
+.hcp-act:last-child{border-right:none}
+.hcp-act:active{color:var(--accent)}
+.hcp-act svg{width:14px;height:14px}
+.streak-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.streak-icon{font-size:34px}
+.streak-num{font-family:'DM Serif Display',serif;font-size:32px;color:var(--accent)}
+.streak-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.stat-card h3{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.week-day{aspect-ratio:1;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:600;flex-direction:column;gap:2px}
+.week-day.done{background:rgba(224,120,48,.15);color:var(--accent)}
+.week-day.today{border:2px solid var(--accent);color:var(--text)}
+.week-day-label{font-size:9px;color:var(--muted)}
+.plan-week{display:flex;flex-direction:column;gap:8px}
+.plan-row-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:grid;grid-template-columns:72px 1fr;box-shadow:0 1px 4px rgba(0,0,0,.03)}
+.plan-day-col{background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;border-right:1px solid var(--border)}
+.plan-day-name{font-family:'DM Serif Display',serif;font-size:13px;color:var(--accent)}
+.plan-day-info{font-size:9px;color:var(--muted);text-align:center;margin-top:2px;letter-spacing:.3px;text-transform:uppercase}
+.plan-acts{padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.plan-act-item{display:flex;align-items:center;gap:7px;font-size:12px}
+.plan-act-time{font-size:10px;color:var(--muted);min-width:80px;font-weight:500}
+.plan-act-label{color:var(--text)}
+.cta-btn{width:100%;padding:15px;border:none;border-radius:var(--radius);font-family:'DM Serif Display',serif;font-size:16px;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.cta-btn:active{opacity:.85}
+.d1{background:var(--accent);color:#fff}
+.d2{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;z-index:300;box-shadow:0 4px 24px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+.toast.show{opacity:1}
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:0 18px 40px}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
+.modal h2{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:4px;color:var(--text)}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.btn-primary{flex:1;padding:14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.btn-secondary{flex:1;padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--muted);font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.field-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:DM Sans,sans-serif;font-size:16px;outline:none;transition:border-color .2s;-moz-appearance:textfield;appearance:textfield;margin-top:8px}
+.field-input:focus{border-color:var(--accent)}
+.meal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.meal-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.meal-day{font-size:14px;font-weight:700;color:var(--text)}
+.meal-day-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.meal-kcal{font-size:12px;font-weight:700;background:rgba(224,120,48,.1);padding:4px 10px;border-radius:20px;color:var(--accent)}
+.meal-item{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.meal-item:last-child{border-bottom:none}
+.meal-type{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.meal-name{font-size:13px;font-weight:600;margin-bottom:3px;color:var(--text)}
+.meal-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.meal-macros{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.macro{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--surface2);border:1px solid var(--border)}
+.macro.p{border-color:rgba(45,138,78,.3);color:var(--success)}
+.macro.c{border-color:rgba(212,160,23,.3);color:var(--gold)}
+.macro.g{border-color:rgba(74,122,174,.3);color:#4a7aae}
+.golf-tip{margin-top:8px;padding:8px 10px;background:rgba(224,120,48,.06);border:1px solid rgba(224,120,48,.2);border-radius:8px;font-size:11px;color:var(--accent);line-height:1.45}
+.fit-day{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.fit-day-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.fit-day-name{font-size:15px;font-weight:700;color:var(--text)}
+.fit-day-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.fit-ex{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.fit-ex:last-child{border-bottom:none}
+.fit-ex-name{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.fit-ex-sets{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:3px}
+.fit-ex-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.report-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.report-section h3{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.report-btn{width:100%;padding:15px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-family:DM Sans,sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.tabs{display:flex;gap:0;background:var(--surface2);border-radius:30px;padding:3px;margin:12px 18px 0}
+.tab{flex:1;padding:9px 12px;border:none;border-radius:26px;background:none;color:var(--muted);font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.tab.active{background:var(--surface);color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.day-tabs{display:flex;gap:8px;padding:14px 18px 0;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-bottom:1px solid var(--border)}
+.day-tabs::-webkit-scrollbar{display:none}
+.day-tab{flex-shrink:0;padding:10px 16px;border:1.5px solid var(--border);border-radius:30px;background:none;color:var(--muted);font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.day-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.obj-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(224,120,48,.08);border:1px solid rgba(224,120,48,.25);color:var(--accent);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;margin-top:8px}
+::-webkit-scrollbar{width:0}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+</style>
+</head>
+<body>
+
+<!-- HOY -->
+<div class="screen active" id="screen-home">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div><h1>⛳ Golf · Genaro</h1><p id="home-date">Cargando...</p></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="badge" id="home-badge">HCP 8.1</span>
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">GG</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="hcp-hero">
+      <div class="hcp-top"><div class="hcp-label">Handicap Índice</div><div class="hcp-sessions">Sesiones: <span id="sessions-done">0</span></div></div>
+      <div class="hcp-num-row">
+        <div class="hcp-number" id="hcp-current">8.1</div>
+        <div class="hcp-meta">
+          <div class="hcp-trend" id="hcp-trend">Sin cambios aún</div>
+          <div class="hcp-date" id="hcp-last-updated"></div>
+        </div>
+      </div>
+      <div class="hcp-obj-bar">
+        <div class="hcp-obj-row"><span>Objetivo: <span id="hcp-obj-display">3.0</span> <button onclick="editObjetivo()">✏️</button></span><span id="hcp-progress-label"></span></div>
+        <div class="hcp-bar-track"><div class="hcp-bar-fill" id="hcp-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="hcp-mini" id="hcp-mini-wrap" style="display:none"><div class="hcp-mini-label">Evolución</div><div class="hcp-mini-bars" id="hcp-mini-bars"></div></div>
+      <div class="hcp-actions">
+        <button class="hcp-act" onclick="showHCPHistory()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Historial</button>
+        <button class="hcp-act" onclick="updateHCP()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Actualizar</button>
+        <button class="hcp-act" onclick="exportarInforme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Informe</button>
+      </div>
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">📊 Actualizar HCP</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="number" id="rfeg-hcp-input" placeholder="Nuevo HCP (ej: 7.8)" step="0.1" min="0" max="54" class="field-input" style="margin-top:0">
+        <button onclick="guardarHCPManual()" style="padding:12px 16px;background:var(--green);border:none;border-radius:8px;color:#fff;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Guardar</button>
+      </div>
+    </div>
+    <div class="streak-card"><div class="streak-icon">🔥</div><div><div class="streak-num" id="streak-num">0</div><div class="streak-lbl">días seguidos de entrenamiento</div></div></div>
+    <div class="stat-card"><h3>Esta semana</h3><div class="week-grid" id="week-grid"></div></div>
+    <div class="stat-card"><h3>Planning semanal</h3><div class="plan-week" id="plan-week-grid"></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <p style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700">Iniciar sesión de golf</p>
+      <button class="cta-btn d1" onclick="goTrain(1)">🏹 Sesión 1 · Approach + Precisión</button>
+      <button class="cta-btn d2" onclick="goTrain(2)">🧠 Sesión 2 · Mental + Gestión de campo</button>
+      <button class="cta-btn" onclick="goTrain(3)" style="background:#e0623a;color:#fff">🏌️ Sesión 3 · Práctica libre + Grip</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOLF -->
+<div class="screen" id="screen-golf">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div><h1 id="train-title">⛳ Golf</h1><p id="train-sub">Entreno · Rondas · Palos</p></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button id="golf-save-btn" onclick="saveSession()" style="display:none;background:rgba(255,255,255,.25);color:#fff;border:1.5px solid rgba(255,255,255,.4);border-radius:30px;padding:8px 16px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer">Guardar</button>
+          <span class="badge" id="rondas-badge" style="display:none">0 rondas</span>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border-bottom:1px solid var(--border);display:flex">
+      <button class="htab active" id="golf-tab-entreno" onclick="switchGolfTab('entreno',this)">🏌️ Entreno</button>
+      <button class="htab" id="golf-tab-rondas" onclick="switchGolfTab('rondas',this)">⛳ Rondas</button>
+      <button class="htab" id="golf-tab-apuestas" onclick="switchGolfTab('apuestas',this)">💰 Apuestas</button>
+    </div>
+  </div>
+  <div id="golf-entreno-sub" style="border-bottom:1px solid var(--border);background:var(--bg)">
+    <div class="day-tabs">
+      <button class="day-tab active" id="dtab-1" onclick="switchDay(1)">Approach · 45min</button>
+      <button class="day-tab" id="dtab-2" onclick="switchDay(2)" style="border-color:var(--gold)">Mental · 60min</button>
+      <button class="day-tab" id="dtab-3" onclick="switchDay(3)" style="border-color:#e0623a">Libre · 45min</button>
+    </div>
+  </div>
+  <div id="golf-rondas-sub" style="display:none;border-bottom:1px solid var(--border);background:var(--bg)">
+    <div class="tabs" style="margin:8px 18px">
+      <button class="tab active" onclick="switchRondasTab('registro',this)">📋 Registro</button>
+      <button class="tab" onclick="switchRondasTab('palos',this)">📏 Palos</button>
+      <button class="tab" onclick="switchRondasTab('stats',this)">📊 Stats</button>
+    </div>
+  </div>
+  <div class="wrap" id="golf-container"></div>
+</div>
+
+<!-- DIETA -->
+<div class="screen" id="screen-diet">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div><h1>Plan de Dieta</h1><p>Ayuno 16:8 · Bajo en carbos · Recomposición</p></div>
+        <span class="badge">~2.000 kcal</span>
+      </div>
+    </div>
+    <div style="background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none">
+      <button class="htab active" onclick="switchDietTab('semana',this)">📅 Plan</button>
+      <button class="htab" onclick="switchDietTab('peso',this)">⚖️ Peso</button>
+      <button class="htab" onclick="switchDietTab('campo',this)">⛳ Campo</button>
+      <button class="htab" onclick="switchDietTab('compra',this)">🛒 Compra</button>
+    </div>
+  </div>
+  <div id="diet-container" class="wrap"></div>
+</div>
+
+<!-- FÍSICO -->
+<div class="screen" id="screen-fit">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div><h1>Plan Físico</h1><p>30–60 min/semana · Golf performance · Recomp</p></div>
+        <span class="badge">~45 min</span>
+      </div>
+    </div>
+  </div>
+  <div class="wrap" id="fit-container"></div>
+</div>
+
+<!-- AJUSTES -->
+<div class="screen" id="screen-ajustes">
+  <div class="header">
+    <div class="header-inner"><div class="header-top"><div><h1>⚙️ Ajustes</h1><p>Configuración e informe</p></div></div></div>
+    <div style="background:var(--surface);border-bottom:1px solid var(--border);display:flex">
+      <button class="htab active" onclick="switchAjustesTab('config',this)">⚙️ Config</button>
+      <button class="htab" onclick="switchAjustesTab('informe',this)">📊 Informe</button>
+    </div>
+  </div>
+  <div class="wrap" id="ajustes-container">
+    <div id="ajustes-config">
+      <div class="card" style="padding:16px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Objetivo HCP</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="obj-input-ajustes" step="0.1" min="0" max="54" placeholder="Ej: 3.0" class="field-input" style="margin-top:0">
+          <button onclick="guardarObjetivoAjustes()" style="padding:12px 16px;background:var(--green);border:none;border-radius:8px;color:#fff;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Guardar</button>
+        </div>
+      </div>
+      <div class="card" style="overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="font-size:14px;font-weight:700">📤 Informe al entrenador</div><div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5">Envía tu progreso mensual a Javier.</div></div>
+        <div style="padding:14px 16px"><button onclick="enviarInformeEntrenador()" style="width:100%;padding:13px;border:none;border-radius:10px;background:var(--green);color:#fff;font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;cursor:pointer">📲 Enviar informe por WhatsApp</button></div>
+      </div>
+      <div class="card" style="overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="font-size:14px;font-weight:700">💾 Copia de seguridad</div></div>
+        <div style="padding:14px 16px;display:flex;gap:8px">
+          <button onclick="exportarBackup()" style="flex:1;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer">⬆️ Exportar</button>
+          <button onclick="importarBackup()" style="flex:1;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer">⬇️ Importar</button>
+        </div>
+        <div style="padding:0 16px 14px">
+          <textarea id="backup-textarea" placeholder="Pega aquí tu código de backup..." rows="3" style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:DM Sans,sans-serif;font-size:12px;resize:none;outline:none;display:none"></textarea>
+          <button id="backup-import-btn" onclick="confirmarImport()" style="display:none;width:100%;margin-top:8px;padding:11px;border:none;border-radius:8px;background:var(--green);color:#fff;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer">Restaurar datos</button>
+        </div>
+      </div>
+      <div class="card" style="overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div style="font-size:14px;font-weight:700">🗑️ Borrar todos los datos</div></div>
+        <div style="padding:14px 16px"><button onclick="borrarTodo()" style="width:100%;padding:13px;border:1.5px solid var(--red);border-radius:10px;background:rgba(217,64,64,.08);color:var(--red);font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;cursor:pointer">Borrar todo</button></div>
+      </div>
+      <div style="text-align:center;font-size:11px;color:var(--muted);padding:8px 0">Golf Performance · Genaro González · App personal</div>
+    </div>
+    <div id="ajustes-informe" style="display:none"></div>
+  </div>
+</div>
+
+<nav id="nav">
+  <button class="nav-btn active" id="nav-home" onclick="navigate('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Hoy</span>
+  </button>
+  <button class="nav-btn" id="nav-golf" onclick="navigate('golf')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="19" r="2"/><path d="M12 17V7"/><path d="M12 7l6 4"/></svg><span>Golf</span>
+  </button>
+  <button class="nav-btn" id="nav-diet" onclick="navigate('diet')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg><span>Dieta</span>
+  </button>
+  <button class="nav-btn" id="nav-fit" onclick="navigate('fit')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M7 7.5V6a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1M14 7.5V6a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1M7 16.5V18a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5M14 16.5V18a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5"/></svg><span>Físico</span>
+  </button>
+  <button class="nav-btn" id="nav-ajustes" onclick="navigate('ajustes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Ajustes</span>
+  </button>
+</nav>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal"><div class="modal-handle"></div><h2 id="modal-title">Título</h2><p id="modal-body"></p><div class="modal-actions"><button class="btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn-primary" id="modal-confirm">Confirmar</button></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATOS GENARO — PERSONALIZADOS
+// ═══════════════════════════════════════════
+const ALUMNO = {
+  nombre: 'Genaro González de la Peña Gil',
+  iniciales: 'GG',
+  club: 'Real Club Pineda',
+  hcpInicial: 8.1,
+  hcpObjetivo: 3.0,
+  pesoInicial: 91,
+  pesoObjetivo: 75,
+  alta: '06/05/2026',
+  entrenador: '34660808725'
+};
+
+const PLANNING = [
+  { dia:'Lunes', info:'Golf', acts:[{time:'Tarde',label:'⛳ Ronda en Pineda o práctica libre'}]},
+  { dia:'Martes', info:'Golf', acts:[{time:'Tarde',label:'🏹 Sesión 1 — Approach + Precisión (45min)'}]},
+  { dia:'Miércoles', info:'Descanso', acts:[{time:'Todo el día',label:'😴 Recuperación activa'}]},
+  { dia:'Jueves', info:'Golf', acts:[{time:'Tarde',label:'🧠 Sesión 2 — Mental + Gestión (60min)'}]},
+  { dia:'Viernes', info:'Golf', acts:[{time:'Tarde',label:'🏌️ Sesión 3 — Práctica libre + grip (45min)'}]},
+  { dia:'Sábado', info:'⛳ Ronda', acts:[{time:'Mañana',label:'⛳ Ronda completa 18 hoyos — Pineda'},{time:'Post-ronda',label:'📊 Actualizar HCP en la app'}]},
+  { dia:'Domingo', info:'Descanso', acts:[{time:'Todo el día',label:'😴 Descanso completo — opcional estiramientos'}]}
+];
+
+const PALOS_INIT = [
+  {palo:'Driver',metros:250},{palo:'Madera 3',metros:225},
+  {palo:'Hierro 4',metros:185},{palo:'Hierro 5',metros:175},
+  {palo:'Hierro 6',metros:165},{palo:'Hierro 7',metros:155},
+  {palo:'Hierro 8',metros:145},{palo:'Hierro 9',metros:135},
+  {palo:'PW',metros:125},{palo:'GW',metros:100},
+  {palo:'SW',metros:85},{palo:'LW',metros:50}
+];
+
+const DAYS = {
+  1:{
+    title:'Approach + Precisión',sub:'45 min · Foco en 50–150m · Tu área más débil',color:'#e07830',
+    blocks:[{
+      id:'d1b1',name:'Approach 50–150m',emoji:'🏹',time:'45 min',
+      objetivo:'GIR ≥50% · Meter la bola en 10m del pin consistentemente',
+      exercises:[
+        {id:'d1e1',name:'Approach por distancias',meta:'6/10 en zona 10m',target:10,
+         desc:'4 bolas a 100m, 4 a 125m, 4 a 80m con PW/GW/SW. Nunca a la bandera — siempre al centro del green. Registra cuántas caen en zona de 10m.'},
+        {id:'d1e2',name:'Control de distancia SW',meta:'7/10 en zona 5m',target:10,
+         desc:'10 bolas desde 85m con SW. Objetivo: todas dentro de 5m del target. Tu SW es tu palo de precisión máxima — apréndelo a fondo.'},
+        {id:'d1e3',name:'Simulación up&down desde 80m',meta:'4/6 up & down',target:6,
+         desc:'6 bolas desde 80m — approach + putt. Cuenta up & downs. Con HCP 8 el 50% de conversión en up&down es el mínimo para bajar a scratch.'}
+      ]
+    }]
+  },
+  2:{
+    title:'Mental + Gestión de campo',sub:'60 min · El factor más limitante a tu nivel',color:'#d4920a',
+    blocks:[{
+      id:'d2b1',name:'Gestión de decisiones',emoji:'🧠',time:'60 min',
+      objetivo:'Tomar decisiones antes de cada golpe · No cambiar de plan en el último segundo',
+      exercises:[
+        {id:'d2e1',name:'Rutina de pre-shot completa',meta:'18/18 rutinas completadas',target:18,
+         desc:'Juega 9 hoyos con una regla: SIEMPRE completar rutina de pre-shot antes de golpear. Decide palo, target y tipo de golpe ANTES de dirigirte a la bola. Cuenta cuántos hoyos cumples la rutina al 100%.'},
+        {id:'d2e2',name:'Golf conservador sin banderas',meta:'9/9 hoyos al centro',target:9,
+         desc:'9 hoyos sin apuntar a ninguna bandera. Siempre al centro del green más amplio. Cuenta cuántos hoyos mantienes la disciplina. Con HCP 8 el 80% de tus bogeys vienen de malas decisiones.'},
+        {id:'d2e3',name:'Diario de campo post-ronda',meta:'3 anotaciones completadas',target:3,
+         desc:'Anota en las notas: (1) mejor decisión del día, (2) peor decisión y por qué, (3) qué cambiarías. El análisis post-ronda baja más el HCP que 100 bolas de práctica.'}
+      ]
+    }]
+  },
+  3:{
+    title:'Práctica libre + Grip',sub:'45 min · Corrección slice y técnica básica',color:'#e0623a',
+    blocks:[{
+      id:'d3b1',name:'Corrección de slice',emoji:'🏌️',time:'45 min',
+      objetivo:'Grip más fuerte + path de dentro a fuera · Eliminar el slice',
+      exercises:[
+        {id:'d3e1',name:'Grip drill con driver',meta:'10/10 con grip correcto',target:10,
+         desc:'Coloca las manos con 2-3 nudillos visibles en la mano izquierda (grip más fuerte). 10 swings lentos verificando el grip antes de cada uno. El slice viene del grip neutro-débil que tienes actualmente.'},
+        {id:'d3e2',name:'Palo en el suelo — path de dentro a fuera',meta:'7/10 sin cruzar',target:10,
+         desc:'Pon un palo apuntando 10° a la derecha del target. Baja el club por dentro de esa línea. Si cruzas, slice asegurado. Con driver y hierros largos.'},
+        {id:'d3e3',name:'Driver a zona amplia',meta:'6/10 en zona',target:10,
+         desc:'10 drives al 85% velocidad. Con el nuevo grip y path. Cuenta los que salen sin slice. Objetivo: 6/10 en zona de 30m ancho. No fuerces la velocidad hasta controlar el shape.'}
+      ]
+    }]
+  }
+};
+
+const DIETA = {
+  semana:[
+    {dia:'Lunes · Golf tarde',tipo:'Ayuno 13:00-21:00 · Bajo en carbos · ~2.000 kcal',kcal:2000,comidas:[
+      {tipo:'13:00 — Primera comida',nombre:'3 huevos + aguacate + tostada',desc:'3 huevos revueltos con AOVE · medio aguacate · 1 tostada integral. Romper el ayuno con proteína + grasa.',kcal:480,p:24,c:22,g:28,tip:'Rompes el ayuno con grasas buenas y proteína — cero pico de insulina. Perfecto para recomposición.'},
+      {tipo:'16:00 — Pre-golf',nombre:'Plátano + puñado de frutos secos',desc:'1 plátano maduro + 30g almendras o nueces. Energía para la práctica sin pesarte.',kcal:260,p:5,c:30,g:12,tip:null},
+      {tipo:'20:00 — Cena',nombre:'Ternera a la plancha + boniato + ensalada',desc:'220g filete de ternera · 150g boniato asado · ensalada grande con AOVE. Alta en proteína y moderada en carbos.',kcal:620,p:52,c:42,g:18,tip:'El boniato después del ejercicio repone glucógeno sin exceso de carbos. Perfecto para recomp.'},
+      {tipo:'21:00 — Cierre',nombre:'Creatina + 30g nueces o lata de atún',desc:'5g creatina monohidrato con agua · nueces o atún como snack de cierre.',kcal:180,p:10,c:4,g:14,tip:null}
+    ]},
+    {dia:'Martes · Approach 45min',tipo:'Ayuno 13:00-21:00 · ~2.000 kcal',kcal:2000,comidas:[
+      {tipo:'13:00 — Primera comida',nombre:'Tortilla 3 huevos + tostada + fruta',desc:'3 huevos en tortilla con AOVE · 1 tostada · 1 naranja. Rápido y completo.',kcal:460,p:24,c:32,g:18,tip:null},
+      {tipo:'15:30 — Pre-práctica',nombre:'Plátano + 2 huevos duros',desc:'1 plátano + 2 huevos duros preparados antes. Energía + proteína sin digestión pesada.',kcal:280,p:14,c:28,g:10,tip:null},
+      {tipo:'20:00 — Cena',nombre:'Salmón al horno + patata + espárragos',desc:'200g salmón al horno · 150g patata cocida · espárragos a la plancha. Omega-3 + proteína limpia.',kcal:620,p:46,c:42,g:22,tip:'El salmón reduce inflamación muscular. Con el objetivo de recomposición, el omega-3 es clave.'},
+      {tipo:'21:00 — Cierre',nombre:'Creatina + lata de sardinas',desc:'5g creatina + sardinas en AOVE. Cierra el día con proteína y grasa buena.',kcal:200,p:18,c:2,g:14,tip:null}
+    ]},
+    {dia:'Jueves · Mental 60min',tipo:'Ayuno 13:00-21:00 · ~2.000 kcal',kcal:2000,comidas:[
+      {tipo:'13:00 — Primera comida',nombre:'Yogur griego + huevos duros + fruta',desc:'1 yogur griego natural · 2 huevos duros · 1 manzana + 30g almendras.',kcal:420,p:28,c:30,g:18,tip:null},
+      {tipo:'15:30 — Pre-ronda',nombre:'Barrita de frutos secos + café',desc:'1 barrita natural sin azúcar + café solo. Concentración y energía para la sesión mental.',kcal:200,p:5,c:22,g:10,tip:'El café 30-40min antes mejora la concentración en el campo. Perfecto para la sesión mental.'},
+      {tipo:'20:00 — Cena',nombre:'Pollo al horno + arroz + verduras',desc:'220g pechuga de pollo · 120g arroz · pimiento y calabacín asados.',kcal:580,p:48,c:44,g:12,tip:null},
+      {tipo:'21:00 — Cierre',nombre:'Creatina + 2 huevos duros',desc:'5g creatina + 2 huevos duros. Proteína de absorción lenta para la noche.',kcal:180,p:14,c:2,g:12,tip:null}
+    ]},
+    {dia:'Sábado · Ronda 18 hoyos',tipo:'Día de mayor gasto · ~2.300 kcal',kcal:2300,comidas:[
+      {tipo:'11:30 — Pre-ronda (1.5h antes)',nombre:'Huevos + tostada + plátano + café',desc:'3 huevos · 1-2 tostadas · 1 plátano · café. La comida más importante del día.',kcal:520,p:28,c:48,g:18,tip:'Nunca salgas al campo con el estómago vacío. Esta comida te da energía para los 18 hoyos.'},
+      {tipo:'Hoyos 9-10 — En campo',nombre:'Plátano + barrita frutos secos',desc:'1 plátano + barrita natural. Recarga en la vuelta de atrás.',kcal:240,p:4,c:36,g:8,tip:'Con el ayuno previo el glucógeno baja antes — este snack en los hoyos 9-10 es obligatorio para rendir bien al final.'},
+      {tipo:'Post-ronda — Comida principal',nombre:'Ternera + patata + ensalada grande',desc:'220g ternera · 150g patata · ensalada grande con AOVE. Dentro de las 2h post-ronda.',kcal:640,p:50,c:46,g:20,tip:'Ventana anabólica post-ronda. Proteína + carbos en las 2h siguientes — obligatorio para la recomp.'},
+      {tipo:'Noche — Cena ligera',nombre:'Huevos revueltos + aguacate + tostadas',desc:'3 huevos + medio aguacate + tostadas. Cena ligera — ya comiste bien post-ronda.',kcal:460,p:22,c:24,g:26,tip:null}
+    ]}
+  ],
+  campo:[
+    {titulo:'🕐 Ayuno y timing pre-ronda',desc:'Si la ronda es antes de las 13h, rompe el ayuno 90min antes con huevos + tostada + plátano. Nunca al campo con el estómago vacío.'},
+    {titulo:'☕ Cafeína estratégica',desc:'1 café 30-40min antes de salir al campo. Mejora concentración y fuerza de agarre. No más de 2 al día — la deshidratación es el mayor enemy en el campo.'},
+    {titulo:'💧 Hidratación en Pineda',desc:'2 vasos antes de salir + 1 vaso cada 4-5 hoyos. Con el calor de Sevilla y el ayuno previo, la deshidratación baja el rendimiento antes de los últimos 6 hoyos.'},
+    {titulo:'🍌 Hoyos 9-10: recarga obligatoria',desc:'Plátano o barrita sin azúcar. Con el ayuno matinal el glucógeno baja antes — este snack es más importante para ti que para los demás.'},
+    {titulo:'🚫 Evita en campo',desc:'Alcohol, bollería, refrescos azucarados. Destrozan la concentración en los últimos 6 hoyos y anulan el trabajo del ayuno.'},
+    {titulo:'⚗️ Creatina en campo',desc:'Ya la tomas en casa. No necesitas tomarla en el campo — los efectos son acumulativos (3-4 semanas de uso consistente). Sigue tomando 5g/día en casa.'}
+  ],
+  compra:[
+    {categoria:'🥚 Proteínas base',items:[
+      {nombre:'Huevos camperos',gramos:'18 uds',nota:'Base del plan — desayunos y cenas'},
+      {nombre:'Atún en AOVE (latas)',gramos:'6 latas',nota:'Snack cierre ventana'},
+      {nombre:'Sardinas en AOVE (latas)',gramos:'4 latas',nota:'Cierre ventana de ayuno'}
+    ]},
+    {categoria:'🥩 Proteínas cena',items:[
+      {nombre:'Pechuga de pollo',gramos:'600g',nota:'Jueves cena'},
+      {nombre:'Salmón fresco (lomos)',gramos:'400g',nota:'Martes cena — omega-3'},
+      {nombre:'Ternera (filetes)',gramos:'600g',nota:'Lunes y sábado post-ronda'}
+    ]},
+    {categoria:'🌾 Carbohidratos (moderados)',items:[
+      {nombre:'Arroz blanco',gramos:'500g',nota:'Jueves cena'},
+      {nombre:'Patatas',gramos:'600g',nota:'Martes y sábado'},
+      {nombre:'Boniatos',gramos:'600g',nota:'Lunes cena'},
+      {nombre:'Tostadas integrales',gramos:'1 paquete',nota:'Desayunos'},
+      {nombre:'Plátanos',gramos:'6 uds',nota:'Pre-golf y campo'}
+    ]},
+    {categoria:'🥑 Grasas saludables',items:[
+      {nombre:'Aguacates',gramos:'3 uds',nota:'Lunes desayuno y sábado cena'},
+      {nombre:'Nueces',gramos:'200g',nota:'Snack cierre y campo'},
+      {nombre:'Almendras crudas',gramos:'150g',nota:'Pre-práctica y meriendas'},
+      {nombre:'Yogur griego natural',gramos:'4 uds',nota:'Jueves primera comida'},
+      {nombre:'Barritas frutos secos sin azúcar',gramos:'6 uds',nota:'Campo — hoyos 9-10'}
+    ]},
+    {categoria:'🥦 Verduras',items:[
+      {nombre:'Espárragos',gramos:'500g',nota:'Martes cena'},
+      {nombre:'Calabacín y pimiento',gramos:'4 uds',nota:'Jueves cena'},
+      {nombre:'Ensalada variada (bolsas)',gramos:'2 bolsas',nota:'Cenas diarias'},
+      {nombre:'Naranjas',gramos:'4 uds',nota:'Primera comida'}
+    ]},
+    {categoria:'💊 Suplementos',items:[
+      {nombre:'Creatina monohidrato',gramos:'5g/día',nota:'Ya la tomas — seguir siempre'},
+      {nombre:'Proteína whey (opcional)',gramos:'1 bote',nota:'Para alcanzar 165g proteína/día fácilmente'},
+      {nombre:'Magnesio',gramos:'1 bote',nota:'Calidad del sueño + recuperación muscular'}
+    ]}
+  ]
+};
+
+const FIT_PLAN = [
+  {
+    dia:'Sesión A · Fuerza + Rotación',duracion:'30-45 min · Golf performance',objetivo:'Potencia rotacional + fuerza de piernas para más metros con el driver',warning:'Prioriza los movimientos específicos de golf. Nada de cardio separado — el golf ya cuenta.',
+    ejercicios:[
+      {nombre:'Calentamiento rotacional',series:'5 min · 10 rotaciones cada lado',desc:'Rotaciones de tronco con palo de golf detrás de los hombros. Activa el patrón del swing antes de añadir resistencia.'},
+      {nombre:'Sentadilla con rotación (mancuernas)',series:'3 × 12 reps (6 por lado)',desc:'Mancuerna al pecho. Sentadilla completa y al subir rota el tronco. Trabaja la secuencia cadera-tronco del downswing.'},
+      {nombre:'Woodchop con goma (arriba→abajo)',series:'3 × 10 reps por lado',desc:'Goma anclada arriba. Jala en diagonal hacia abajo simulando el downswing. El ejercicio más específico para el swing que puedes hacer en casa.'},
+      {nombre:'Plancha lateral',series:'3 × 40 seg por lado',desc:'Cuerpo recto, cadera arriba. Estabilidad lateral del swing — evita el slide de cadera que roba metros al driver.'},
+      {nombre:'Zancada búlgara con mancuernas',series:'3 × 10 reps por lado',desc:'Pie trasero en silla, mancuernas. Baja lento 3 seg, sube explosivo. Potencia de piernas = velocidad de cabeza en impacto.'},
+      {nombre:'Press Pallof con goma',series:'3 × 10 reps por lado',desc:'Goma anclada lateral. Extiende brazos resistiendo la rotación. Anti-rotación = mayor eficiencia del swing.'}
+    ]
+  },
+  {
+    dia:'Sesión B · Movilidad + Approach físico',duracion:'30 min · Ligero · Pre o post ronda',objetivo:'Movilidad de cadera + columna para mayor amplitud de giro en el backswing',warning:'Esta sesión puede hacerse antes de jugar. Activa sin fatigar.',
+    ejercicios:[
+      {nombre:'Apertura de cadera en suelo',series:'2 × 10 reps por lado',desc:'Tumbado boca arriba, rodilla en 90° y dejarla caer al lado. Movilidad de cadera — uno de los principales limitadores del backswing completo.'},
+      {nombre:'Rotación torácica en cuadrupedia',series:'2 × 12 reps por lado',desc:'En cuadrupedia, mano detrás de la cabeza y rota el codo hacia el techo. Movilidad torácica = más amplitud de giro sin forzar la lumbar.'},
+      {nombre:'Hip hinge con palo de golf',series:'3 × 15 reps',desc:'Con un palo en la espalda (cabeza y sacro). Bisagra de cadera manteniendo el palo en contacto. La postura del golf correcta es exactamente este movimiento.'},
+      {nombre:'Equilibrio en una pierna + rotación',series:'2 × 10 reps por lado',desc:'De pie en una sola pierna, rota el tronco con brazos extendidos. Transferencia de peso del backswing al impacto — en el swing el 100% del peso va a la pierna delantera.'},
+      {nombre:'Estiramiento del piriforme',series:'2 × 30 seg por lado',desc:'Tumbado boca arriba, tobillo sobre la rodilla contraria. Presiona suavemente la rodilla. Libera tensión en la cadera que limita la rotación.'}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+var sessions=[];
+var currentDay=1;
+var currentSession={};
+var currentDietTab='semana';
+var currentGolfTab='entreno';
+var currentHoyos=18;
+var apuestaJugadores=[];
+
+var PFX='genaro_';
+function ls(k){try{return JSON.parse(localStorage.getItem(PFX+k)||'null');}catch(e){return null;}}
+function ss(k,v){localStorage.setItem(PFX+k,JSON.stringify(v));}
+
+function loadAll(){
+  try{sessions=JSON.parse(localStorage.getItem(PFX+'sessions')||'[]');}catch(e){sessions=[];}
+}
+function saveAll(){localStorage.setItem(PFX+'sessions',JSON.stringify(sessions));}
+function getHCP(){var v=ls('hcp');return v!==null?parseFloat(v):ALUMNO.hcpInicial;}
+function getObj(){var v=ls('obj');return v!==null?parseFloat(v):ALUMNO.hcpObjetivo;}
+function getHist(){return ls('hcp_hist')||[];}
+function getPesoHist(){return ls('peso_hist')||[];}
+function savePesoHist(h){ss('peso_hist',h);}
+function getRondas(){return ls('rondas')||[];}
+function saveRondas(r){ss('rondas',r);}
+function getApuestas(){return ls('apuestas')||[];}
+function saveApuestas(a){ss('apuestas',a);}
+function getPalosHist(){return ls('palos_hist')||[];}
+function savePalosHist(h){ss('palos_hist',h);}
+function getPalosActual(){var h=getPalosHist();return h.length?h[h.length-1].palos:PALOS_INIT.map(function(p){return{palo:p.palo,metros:p.metros};});}
+
+// ═══════════════════════════════════════════
+// NAVIGATE
+// ═══════════════════════════════════════════
+function navigate(s){
+  document.querySelectorAll('.screen').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('screen-'+s).classList.add('active');
+  document.getElementById('nav-'+s).classList.add('active');
+  if(s==='home')renderHome();
+  if(s==='golf'){switchGolfTab('entreno',document.getElementById('golf-tab-entreno'));}
+  if(s==='diet'){currentDietTab='semana';renderDiet('semana');}
+  if(s==='fit')renderFit();
+  if(s==='ajustes')switchAjustesTab('config',document.querySelector('#screen-ajustes .htab'));
+}
+function goTrain(d){navigate('golf');switchDay(d);}
+
+// ═══════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════
+function renderHome(){
+  var now=new Date();
+  document.getElementById('home-date').textContent=now.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('sessions-done').textContent=sessions.length;
+  document.getElementById('streak-num').textContent=calcStreak();
+  renderWeekGrid();renderPlanningGrid();renderHCPCard();
+}
+
+function renderPlanningGrid(){
+  var grid=document.getElementById('plan-week-grid');if(!grid)return;
+  var today=new Date().getDay();
+  var dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var todayName=dayNames[today];
+  var showAll=ls('plan_expand')==='1';
+  var toShow=showAll?PLANNING:(PLANNING.filter(function(p){return p.dia===todayName;})||PLANNING);
+  if(!toShow.length)toShow=PLANNING;
+  grid.innerHTML=toShow.map(function(p){
+    var isToday=p.dia===todayName;
+    return '<div class="plan-row-item" style="'+(isToday?'border-color:var(--gold);':'')+'">' +
+      '<div class="plan-day-col"><div class="plan-day-name" style="'+(isToday?'color:var(--gold)':'')+'">'+p.dia.substring(0,3)+'</div><div class="plan-day-info">'+p.info+'</div></div>'+
+      '<div class="plan-acts">'+p.acts.map(function(a){return '<div class="plan-act-item"><span class="plan-act-time">'+a.time+'</span><span class="plan-act-label">'+a.label+'</span></div>';}).join('')+'</div></div>';
+  }).join('')+
+  '<button onclick="togglePlanExpand()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--muted);font-family:\'DM Sans\',sans-serif;font-size:12px;cursor:pointer;margin-top:4px">'+(showAll?'▲ Ver solo hoy':'▼ Ver semana completa')+'</button>';
+}
+
+function togglePlanExpand(){ss('plan_expand',ls('plan_expand')==='1'?'0':'1');renderPlanningGrid();}
+
+function renderHCPCard(){
+  var hcp=getHCP(),obj=getObj(),hist=getHist();
+  var el=document.getElementById('hcp-current');if(!el)return;
+  el.textContent=hcp.toFixed(1);
+  document.getElementById('hcp-obj-display').textContent=obj.toFixed(1);
+  document.getElementById('home-badge').textContent='HCP '+hcp.toFixed(1);
+  var start=ALUMNO.hcpInicial;
+  var pct=start-obj>0?Math.max(0,Math.min(100,Math.round(((start-hcp)/(start-obj))*100))):0;
+  document.getElementById('hcp-progress-fill').style.width=pct+'%';
+  document.getElementById('hcp-progress-label').textContent=pct+'% · '+(hcp-obj>0?'Faltan '+(hcp-obj).toFixed(1):'¡Objetivo!');
+  var trendEl=document.getElementById('hcp-trend');
+  if(hist.length<2){trendEl.textContent='Sin cambios aún';trendEl.className='hcp-trend';}
+  else{
+    var diff=hcp-hist[0].hcp;
+    if(diff<0){trendEl.textContent='⬇ '+Math.abs(diff).toFixed(1)+' pts mejorado';trendEl.className='hcp-trend good';}
+    else if(diff>0){trendEl.textContent='⬆ '+diff.toFixed(1)+' pts subido';trendEl.className='hcp-trend bad';}
+    else{trendEl.textContent='→ Sin cambios';trendEl.className='hcp-trend';}
+  }
+  var dateEl=document.getElementById('hcp-last-updated');
+  if(hist.length>0){var d=new Date(hist[hist.length-1].date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'2-digit'});dateEl.textContent='Actualizado '+d;}
+  var wrap=document.getElementById('hcp-mini-wrap'),bars=document.getElementById('hcp-mini-bars');
+  if(hist.length>=2){
+    wrap.style.display='block';
+    var vals=hist.slice(-10).map(function(h){return h.hcp;});
+    var minV=Math.min.apply(null,vals),maxV=Math.max.apply(null,vals),range=maxV-minV||1;
+    bars.innerHTML=hist.slice(-10).map(function(h,i,arr){
+      var norm=1-((h.hcp-minV)/range);var ht=Math.max(5,Math.round(norm*22)+5);var isLast=i===arr.length-1;
+      var col=isLast?'var(--greenl)':(h.hcp<=arr[0].hcp?'var(--success)':'var(--orange)');
+      return '<div class="hcp-mini-bar" style="background:'+col+';height:'+ht+'px;opacity:'+(isLast?1:.7)+'" title="'+h.hcp.toFixed(1)+'"></div>';
+    }).join('');
+  }else{wrap.style.display='none';}
+}
+
+function calcStreak(){
+  if(!sessions.length)return 0;
+  var dates=[...new Set(sessions.map(function(s){return s.date;}))].sort().reverse();
+  var streak=0,d=new Date();d.setHours(0,0,0,0);
+  for(var i=0;i<dates.length;i++){
+    var sd=new Date(dates[i]);sd.setHours(0,0,0,0);
+    var diff=Math.round((d-sd)/86400000);
+    if(diff===0||diff===1){streak++;d=sd;}else break;
+  }
+  return streak;
+}
+
+function renderWeekGrid(){
+  var grid=document.getElementById('week-grid');
+  var today=new Date();today.setHours(0,0,0,0);
+  var dow=(today.getDay()+6)%7;
+  var days=['L','M','X','J','V','S','D'];
+  var datesSet=new Set(sessions.map(function(s){return s.date;}));
+  grid.innerHTML=Array.from({length:7}).map(function(_,i){
+    var d=new Date(today);d.setDate(d.getDate()-dow+i);
+    var ds=d.toISOString().slice(0,10);
+    var isToday=i===dow,done=datesSet.has(ds);
+    return '<div class="week-day '+(done?'done':'')+(isToday?' today':'')+'">'+
+      (done?'✓':days[i])+'<div class="week-day-label">'+d.getDate()+'</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// HCP
+// ═══════════════════════════════════════════
+function guardarHCPManual(){
+  var val=parseFloat(document.getElementById('rfeg-hcp-input').value);
+  if(isNaN(val)||val<0||val>54){showToast('⚠️ Introduce un HCP válido');return;}
+  var hist=getHist();hist.push({hcp:val,date:new Date().toISOString(),note:'Actualización manual'});
+  ss('hcp',val);ss('hcp_hist',hist);
+  document.getElementById('rfeg-hcp-input').value='';
+  renderHCPCard();showToast('✅ HCP '+val.toFixed(1)+' guardado');
+}
+
+function updateHCP(){
+  document.getElementById('modal-title').textContent='📊 Actualizar HCP';
+  document.getElementById('modal-body').innerHTML='<input id="new-hcp-val" type="number" step="0.1" min="0" max="54" placeholder="Nuevo HCP (ej: 7.8)" class="field-input">';
+  document.getElementById('modal-confirm').textContent='Guardar';
+  document.getElementById('modal-confirm').onclick=function(){
+    var val=parseFloat(document.getElementById('new-hcp-val').value);
+    if(isNaN(val)){showToast('⚠️ Valor inválido');return;}
+    var hist=getHist();hist.push({hcp:val,date:new Date().toISOString(),note:'Actualización'});
+    ss('hcp',val);ss('hcp_hist',hist);
+    closeModal();renderHome();showToast('✅ HCP '+val.toFixed(1)+' actualizado');
+  };
+  document.getElementById('modal').classList.add('open');
+  setTimeout(function(){document.getElementById('new-hcp-val').focus();},100);
+}
+
+function editObjetivo(){
+  document.getElementById('modal-title').textContent='🎯 Editar objetivo';
+  document.getElementById('modal-body').innerHTML='<input id="new-obj-val" type="number" step="0.1" min="0" max="54" value="'+getObj()+'" class="field-input">';
+  document.getElementById('modal-confirm').textContent='Guardar';
+  document.getElementById('modal-confirm').onclick=function(){
+    var val=parseFloat(document.getElementById('new-obj-val').value);
+    if(isNaN(val))return;ss('obj',val);closeModal();renderHCPCard();showToast('🎯 Objetivo: '+val.toFixed(1));
+  };
+  document.getElementById('modal').classList.add('open');
+}
+
+function showHCPHistory(){
+  var hist=getHist();if(!hist.length){showToast('Sin historial aún');return;}
+  var txt=hist.slice().reverse().slice(0,12).map(function(h){
+    var d=new Date(h.date).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    return d+'  HCP '+h.hcp.toFixed(1)+(h.note?' · '+h.note:'');
+  }).join('\n');
+  document.getElementById('modal-title').textContent='📈 Historial HCP';
+  document.getElementById('modal-body').innerHTML='<pre style="font-size:13px;color:var(--text);white-space:pre-wrap;line-height:1.8">'+txt+'</pre>';
+  document.getElementById('modal-confirm').textContent='Cerrar';
+  document.getElementById('modal-confirm').onclick=closeModal;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ═══════════════════════════════════════════
+// TRAINING
+// ═══════════════════════════════════════════
+function switchDay(d){
+  currentDay=d;
+  [1,2,3].forEach(function(n){
+    var t=document.getElementById('dtab-'+n);if(!t)return;
+    t.classList.remove('active');
+    if(n===d){t.classList.add('active');}
+  });
+  var day=DAYS[d];
+  document.getElementById('train-title').textContent=day.title;
+  document.getElementById('train-sub').textContent=day.sub;
+  try{currentSession=JSON.parse(localStorage.getItem(PFX+'draft_d'+d)||'{}');}catch(e){currentSession={};}
+  renderTrain();
+}
+
+function renderTrain(){
+  var d=DAYS[currentDay];var col=d.color;
+  document.getElementById('golf-container').innerHTML=d.blocks.map(function(block){
+    var total=block.exercises.length;
+    var done=block.exercises.filter(function(e){return(currentSession[e.id]||{}).done>0;}).length;
+    return '<div class="card" id="block-'+block.id+'">'+
+      '<div class="card-header" onclick="toggleBlock(\''+block.id+'\')">'+
+        '<div class="card-title"><div class="card-icon" style="background:'+col+'22;color:'+col+'">'+block.emoji+'</div>'+
+        '<div><div class="card-name">'+block.name+'</div><div class="card-sub">'+block.time+'</div></div></div>'+
+        '<div class="card-badge '+(done===total&&total>0?'done':'')+'">'+done+'/'+total+'</div></div>'+
+      '<div class="exercises" id="ex-'+block.id+'" style="display:none">'+
+        '<div style="padding:10px 16px 6px;background:'+col+'11;border-bottom:1px solid '+col+'33">'+
+          '<div class="obj-chip">🎯 '+block.objetivo+'</div></div>'+
+        block.exercises.map(function(ex){return renderEx(ex,col);}).join('')+
+      '</div></div>';
+  }).join('');
+}
+
+function renderEx(ex,col){
+  var val=(currentSession[ex.id]||{}).done||0;
+  var notes=(currentSession[ex.id]||{}).notes||'';
+  var pct=Math.min(100,Math.round((val/ex.target)*100));
+  var fillCol=pct>=80?'var(--greenl)':pct>=50?'var(--gold)':'var(--orange)';
+  return '<div class="exercise">'+
+    '<div class="ex-name">'+ex.name+'</div><div class="ex-desc">'+ex.desc+'</div>'+
+    '<div class="ex-meta">Meta: '+ex.meta+'</div>'+
+    '<div class="counter-row">'+
+      '<div class="counter">'+
+        '<button class="cnt-btn cnt-minus" onclick="adj(\''+ex.id+'\','+ex.target+',-1)">−</button>'+
+        '<div class="cnt-val" id="val-'+ex.id+'">'+val+'</div>'+
+        '<button class="cnt-btn cnt-plus" onclick="adj(\''+ex.id+'\','+ex.target+',1)">+</button>'+
+      '</div>'+
+      '<div style="text-align:right;font-size:12px;color:'+col+';font-weight:700">'+val+'/'+ex.target+'</div>'+
+    '</div>'+
+    '<div class="kpi-bar"><div class="kpi-fill" id="fill-'+ex.id+'" style="width:'+pct+'%;background:'+fillCol+'"></div></div>'+
+    '<div class="kpi-label"><span>'+val+' de '+ex.target+'</span><span>'+pct+'%</span></div>'+
+    '<textarea class="notes-area" placeholder="Notas..." rows="2" onchange="saveNote(\''+ex.id+'\',this.value)">'+notes+'</textarea>'+
+  '</div>';
+}
+
+function toggleBlock(id){var el=document.getElementById('ex-'+id);el.style.display=el.style.display==='none'?'block':'none';}
+
+function adj(exId,target,delta){
+  if(!currentSession[exId])currentSession[exId]={done:0,notes:''};
+  var v=Math.max(0,(currentSession[exId].done||0)+delta);
+  currentSession[exId].done=v;
+  localStorage.setItem(PFX+'draft_d'+currentDay,JSON.stringify(currentSession));
+  var valEl=document.getElementById('val-'+exId);var fillEl=document.getElementById('fill-'+exId);
+  if(!valEl)return;
+  valEl.textContent=v;
+  var pct=Math.min(100,Math.round((v/target)*100));
+  var col=pct>=80?'var(--greenl)':pct>=50?'var(--gold)':'var(--orange)';
+  fillEl.style.width=pct+'%';fillEl.style.background=col;
+  var kpi=fillEl.closest('.exercise').querySelector('.kpi-label');
+  if(kpi){kpi.children[0].textContent=v+' de '+target;kpi.children[1].textContent=pct+'%';}
+  if(navigator.vibrate)navigator.vibrate(10);
+  var block=null;
+  Object.values(DAYS[currentDay].blocks).forEach(function(b){if(b.exercises.some(function(e){return e.id===exId;}))block=b;});
+  if(block){
+    var done=block.exercises.filter(function(e){return(currentSession[e.id]||{}).done>0;}).length;
+    var badge=document.querySelector('#block-'+block.id+' .card-badge');
+    if(badge){badge.textContent=done+'/'+block.exercises.length;badge.className='card-badge'+(done===block.exercises.length?' done':'');}
+  }
+}
+
+function saveNote(exId,val){
+  if(!currentSession[exId])currentSession[exId]={done:0,notes:''};
+  currentSession[exId].notes=val;
+  localStorage.setItem(PFX+'draft_d'+currentDay,JSON.stringify(currentSession));
+}
+
+function saveSession(){
+  var d=DAYS[currentDay];
+  var total=d.blocks.reduce(function(s,b){return s+b.exercises.reduce(function(s2,e){return s2+e.target;},0);},0);
+  var done=d.blocks.reduce(function(s,b){return s+b.exercises.reduce(function(s2,e){return s2+(currentSession[e.id]||{done:0}).done;},0);},0);
+  var score=Math.min(100,Math.round((done/total)*100));
+  var hoy=new Date().toISOString().slice(0,10);
+  document.getElementById('modal-title').textContent='📅 ¿Cuándo hiciste esta sesión?';
+  document.getElementById('modal-body').innerHTML='<input id="session-date-input" type="date" value="'+hoy+'" class="field-input" style="margin-top:0">';
+  document.getElementById('modal-confirm').textContent='Guardar sesión';
+  document.getElementById('modal-confirm').onclick=function(){
+    var dateVal=document.getElementById('session-date-input').value||hoy;
+    sessions.push({date:dateVal,day:currentDay,data:JSON.parse(JSON.stringify(currentSession)),score:score});
+    saveAll();localStorage.removeItem(PFX+'draft_d'+currentDay);currentSession={};
+    closeModal();renderTrain();
+    showToast((score>=85?'🔥':score>=65?'✅':'📈')+' '+score+'% completado');
+    renderHome();
+  };
+  document.getElementById('modal').classList.add('open');
+}
+
+// ═══════════════════════════════════════════
+// GOLF TABS
+// ═══════════════════════════════════════════
+function switchGolfTab(tab,btn){
+  currentGolfTab=tab;
+  document.querySelectorAll('#screen-golf .htab').forEach(function(t){t.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  var entrenoSub=document.getElementById('golf-entreno-sub');
+  var rondasSub=document.getElementById('golf-rondas-sub');
+  var saveBtn=document.getElementById('golf-save-btn');
+  var badge=document.getElementById('rondas-badge');
+  if(tab==='entreno'){
+    entrenoSub.style.display='block';rondasSub.style.display='none';
+    saveBtn.style.display='block';badge.style.display='none';renderTrain();
+  }else if(tab==='rondas'){
+    entrenoSub.style.display='none';rondasSub.style.display='block';
+    saveBtn.style.display='none';badge.style.display='inline-block';
+    document.querySelectorAll('#golf-rondas-sub .tab').forEach(function(t,i){t.classList.toggle('active',i===0);});
+    renderRondas('registro');
+  }else{
+    entrenoSub.style.display='none';rondasSub.style.display='none';
+    saveBtn.style.display='none';badge.style.display='none';renderApuestas();
+  }
+}
+
+// ═══════════════════════════════════════════
+// RONDAS
+// ═══════════════════════════════════════════
+var currentRondasTab='registro';
+function switchRondasTab(tab,btn){
+  currentRondasTab=tab;
+  document.querySelectorAll('#golf-rondas-sub .tab').forEach(function(t){t.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderRondas(tab);
+}
+
+function renderRondas(tab){
+  var c=document.getElementById('golf-container');
+  var rondas=getRondas();
+  document.getElementById('rondas-badge').textContent=rondas.length+' ronda'+(rondas.length!==1?'s':'');
+  if(tab==='palos'){renderPalos(c);return;}
+  if(tab==='stats'){renderRondasStats(c,rondas);return;}
+  var hoy=new Date().toISOString().slice(0,10);
+  c.innerHTML=
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">'+
+      '<div style="font-size:13px;font-weight:700;margin-bottom:12px">➕ Registrar ronda</div>'+
+      '<div style="display:flex;gap:8px;margin-bottom:12px">'+
+        '<button id="btn-18h" onclick="setTipoRonda(18)" style="flex:1;padding:10px;border:2px solid var(--green);border-radius:10px;background:rgba(224,120,48,.15);color:var(--greenl);font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">⛳ 18 hoyos</button>'+
+        '<button id="btn-9h" onclick="setTipoRonda(9)" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--muted);font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">🏌️ 9 hoyos</button>'+
+      '</div>'+
+      '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Fecha</div><input type="date" id="r-fecha" value="'+hoy+'" class="field-input" style="margin-top:0"></div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+        '<div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Golpes</div><input type="number" id="r-golpes" placeholder="82" class="field-input" style="margin-top:0"></div>'+
+        '<div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Putts</div><input type="number" id="r-putts" placeholder="30" class="field-input" style="margin-top:0"></div>'+
+        '<div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">GIR %</div><input type="number" id="r-gir" placeholder="44" class="field-input" style="margin-top:0"></div>'+
+        '<div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">FIR %</div><input type="number" id="r-fir" placeholder="57" class="field-input" style="margin-top:0"></div>'+
+        '<div style="grid-column:1/-1"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">HCP con el que jugaste</div><input type="number" id="r-hcp" placeholder="8.1" step="0.1" class="field-input" style="margin-top:0"></div>'+
+      '</div>'+
+      '<textarea id="r-notas" placeholder="Notas (campo, condiciones...)" rows="2" style="width:100%;margin-top:8px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:13px;resize:none;outline:none"></textarea>'+
+      '<button onclick="guardarRonda()" style="width:100%;margin-top:10px;padding:13px;border:none;border-radius:10px;background:var(--green);color:#fff;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:600;cursor:pointer">Guardar ronda</button>'+
+    '</div>'+
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">'+
+      '<div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700">Historial ('+rondas.length+')</div>'+
+      (rondas.length===0?'<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">Sin rondas registradas aún</div>':
+        rondas.slice().reverse().map(function(r){
+          var golCol=r.golpes<80?'var(--success)':r.golpes<85?'var(--gold)':'var(--orange)';
+          var fecha=r.fecha||'—';
+          return '<div style="padding:12px 16px;border-bottom:1px solid var(--border)">'+
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+              '<div><div style="font-size:11px;color:var(--muted)">'+fecha+'</div><div style="font-size:10px;color:var(--muted)">'+(r.hoyos||18)+' hoyos</div></div>'+
+              '<div style="font-family:\'DM Serif Display\',serif;font-size:26px;color:'+golCol+'">'+r.golpes+'</div>'+
+              '<button onclick="borrarRonda(\''+r.id+'\')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">×</button>'+
+            '</div>'+
+            '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+              '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:var(--surface2);color:var(--muted)">🎯 GIR '+r.gir+'%</span>'+
+              '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:var(--surface2);color:var(--muted)">🏌️ '+r.putts+' putts</span>'+
+              '<span style="font-size:11px;padding:3px 8px;border-radius:20px;background:var(--surface2);color:var(--muted)">📐 FIR '+r.fir+'%</span>'+
+            '</div>'+
+            (r.notas?'<div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic">'+r.notas+'</div>':'')+
+          '</div>';
+        }).join('')
+      )+'</div>';
+}
+
+function setTipoRonda(n){
+  currentHoyos=n;
+  var btn18=document.getElementById('btn-18h');var btn9=document.getElementById('btn-9h');
+  if(!btn18||!btn9)return;
+  if(n===18){btn18.style.border='2px solid var(--green)';btn18.style.background='rgba(224,120,48,.15)';btn18.style.color='var(--greenl)';btn9.style.border='1px solid var(--border)';btn9.style.background='var(--surface2)';btn9.style.color='var(--muted)';}
+  else{btn9.style.border='2px solid var(--green)';btn9.style.background='rgba(224,120,48,.15)';btn9.style.color='var(--greenl)';btn18.style.border='1px solid var(--border)';btn18.style.background='var(--surface2)';btn18.style.color='var(--muted)';}
+}
+
+function guardarRonda(){
+  var golpes=parseInt(document.getElementById('r-golpes').value);
+  var putts=parseInt(document.getElementById('r-putts').value);
+  var gir=parseInt(document.getElementById('r-gir').value);
+  var fir=parseInt(document.getElementById('r-fir').value);
+  var hcp=parseFloat(document.getElementById('r-hcp').value);
+  var notas=document.getElementById('r-notas').value.trim();
+  var fechaVal=document.getElementById('r-fecha').value;
+  if(isNaN(golpes)||golpes<50||golpes>150){showToast('⚠️ Golpes no válido');return;}
+  if(isNaN(putts)||putts<18||putts>60){showToast('⚠️ Putts no válido');return;}
+  if(isNaN(gir)||gir<0||gir>100){showToast('⚠️ GIR no válido');return;}
+  if(isNaN(fir)||fir<0||fir>100){showToast('⚠️ FIR no válido');return;}
+  var fechaObj=fechaVal?new Date(fechaVal):new Date();
+  var fechaStr=fechaObj.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  var rondas=getRondas();
+  rondas.push({id:Date.now().toString(),fecha:fechaStr,ts:fechaObj.toISOString(),hoyos:currentHoyos,golpes:golpes,putts:putts,gir:gir,fir:fir,hcpJuego:isNaN(hcp)?null:hcp,notas:notas});
+  saveRondas(rondas);
+  ['r-golpes','r-putts','r-gir','r-fir','r-hcp','r-notas'].forEach(function(id){document.getElementById(id).value='';});
+  currentHoyos=18;renderRondas('registro');showToast('⛳ Ronda '+golpes+' guardada');
+}
+
+function borrarRonda(id){saveRondas(getRondas().filter(function(r){return r.id!==id;}));renderRondas('registro');}
+
+function renderRondasStats(c,rondas){
+  if(rondas.length<2){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px">Necesitas al menos 2 rondas</div>';return;}
+  var r18=rondas.filter(function(r){return !r.hoyos||r.hoyos===18;});
+  var avgG=r18.length?Math.round(r18.reduce(function(s,r){return s+r.golpes;},0)/r18.length):null;
+  var avgGIR=r18.length?Math.round(r18.reduce(function(s,r){return s+r.gir;},0)/r18.length):null;
+  var avgP=r18.length?(r18.reduce(function(s,r){return s+r.putts;},0)/r18.length).toFixed(1):null;
+  c.innerHTML='<div class="report-section"><h3>📊 Medias (18 hoyos)</h3>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
+    [{l:'Golpes',v:avgG,ico:'⛳'},{l:'GIR %',v:avgGIR?avgGIR+'%':null,ico:'🎯'},{l:'Putts',v:avgP,ico:'🏌️'}].map(function(k){
+      return '<div style="background:var(--surface2);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px">'+k.ico+'</div>'+
+        '<div style="font-family:\'DM Serif Display\',serif;font-size:22px;margin-top:2px">'+(k.v||'—')+'</div>'+
+        '<div style="font-size:9px;color:var(--muted);text-transform:uppercase">'+k.l+'</div></div>';
+    }).join('')+'</div></div>'+
+    '<div class="report-section"><h3>Mejor tarjeta histórica</h3>'+
+    '<div style="font-family:\'DM Serif Display\',serif;font-size:48px;color:var(--success)">74</div>'+
+    '<div style="font-size:12px;color:var(--muted)">Real Sevilla Golf</div></div>';
+}
+
+function renderPalos(c){
+  var actual=getPalosActual();
+  c.innerHTML='<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px">'+
+    '<div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700">Distancias actuales</div>'+
+    actual.map(function(p){return '<div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">'+p.palo+'</span><span style="font-size:13px;color:var(--greenl);font-weight:700">'+p.metros+'m</span></div>';}).join('')+
+  '</div>'+
+  '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px">'+
+    '<div style="font-size:13px;font-weight:700;margin-bottom:10px">📏 Actualizar distancias</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="palos-inputs">'+
+    actual.map(function(p,i){return '<div><div style="font-size:11px;color:var(--muted);margin-bottom:3px">'+p.palo+'</div><input type="number" id="palo-'+i+'" value="'+p.metros+'" min="30" max="350" class="field-input" style="margin-top:0;font-size:13px"></div>';}).join('')+
+    '</div>'+
+    '<button onclick="guardarPalos()" style="width:100%;margin-top:12px;padding:13px;border:none;border-radius:10px;background:var(--green);color:#fff;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:600;cursor:pointer">Guardar</button></div>';
+}
+
+function guardarPalos(){
+  var actual=getPalosActual();
+  var nuevos=actual.map(function(p,i){var val=parseInt(document.getElementById('palo-'+i).value);return{palo:p.palo,metros:isNaN(val)?p.metros:val};});
+  var hist=getPalosHist();var hoy=new Date();
+  hist.push({fecha:hoy.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'}),ts:hoy.toISOString(),palos:nuevos});
+  savePalosHist(hist);renderPalos(document.getElementById('golf-container'));showToast('📏 Distancias actualizadas');
+}
+
+// ═══════════════════════════════════════════
+// APUESTAS
+// ═══════════════════════════════════════════
+function renderApuestas(){
+  var c=document.getElementById('golf-container');
+  var apuestas=getApuestas();
+  var saldos={};
+  apuestas.forEach(function(a){a.jugadores.forEach(function(j){
+    if(!saldos[j.nombre])saldos[j.nombre]={total:0,rondas:0,pendiente:0,ganadas:0,perdidas:0};
+    saldos[j.nombre].total+=j.cantidad;saldos[j.nombre].rondas++;
+    if(!j.pagado)saldos[j.nombre].pendiente+=j.cantidad;
+    if(j.cantidad>0)saldos[j.nombre].ganadas++;else if(j.cantidad<0)saldos[j.nombre].perdidas++;
+  });});
+  var neto=0;apuestas.forEach(function(a){a.jugadores.forEach(function(j){neto+=j.cantidad;});});
+  var hoy=new Date().toISOString().slice(0,10);
+  c.innerHTML=
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px">'+
+      '<div style="padding:16px 18px;border-bottom:1px solid var(--border)">'+
+        '<div style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Balance total</div>'+
+        '<div style="font-family:\'DM Serif Display\',serif;font-size:52px;color:'+(neto>=0?'var(--success)':'var(--red)')+'">'+( neto>=0?'+':'')+neto+'€</div>'+
+      '</div>'+
+      (Object.keys(saldos).length?'<div style="padding:12px 18px">'+
+        Object.keys(saldos).sort(function(a,b){return saldos[b].total-saldos[a].total;}).map(function(nombre,idx){
+          var s=saldos[nombre];var col=s.total>0?'var(--success)':s.total<0?'var(--red)':'var(--muted)';
+          var medal=idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':(idx+1)+'º';
+          return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">'+
+            '<div style="font-size:18px;min-width:28px">'+medal+'</div>'+
+            '<div style="flex:1"><div style="font-size:14px;font-weight:700">'+nombre+'</div>'+
+              '<div style="font-size:11px;color:var(--muted)">'+s.ganadas+'G · '+s.perdidas+'P · '+s.rondas+' rondas</div></div>'+
+            '<div style="font-size:16px;font-weight:800;color:'+col+'">'+(s.total>=0?'+':'')+s.total+'€</div></div>';
+        }).join('')+'</div>':'')+'</div>'+
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">'+
+      '<div style="font-size:13px;font-weight:700;margin-bottom:12px">➕ Registrar apuesta</div>'+
+      '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Fecha</div><input type="date" id="ap-fecha" value="'+hoy+'" class="field-input" style="margin-top:0"></div>'+
+      '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Notas</div><input type="text" id="ap-notas" placeholder="Ej: Pineda, Nassau" class="field-input" style="margin-top:0"></div>'+
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Jugadores</div>'+
+      '<div id="ap-jugadores-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>'+
+      '<div style="display:flex;gap:8px;margin-bottom:12px">'+
+        '<input type="text" id="ap-nuevo-nombre" placeholder="Nombre jugador" class="field-input" style="margin-top:0;flex:1">'+
+        '<button onclick="apAñadirJugador()" style="padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0">+ Añadir</button>'+
+      '</div>'+
+      '<button onclick="guardarApuesta()" style="width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:600;cursor:pointer">Guardar apuesta</button>'+
+    '</div>'+
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">'+
+      '<div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700">Historial ('+apuestas.length+')</div>'+
+      (apuestas.length===0?'<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Sin apuestas registradas</div>':
+        apuestas.slice().reverse().map(function(a){
+          var total=a.jugadores.reduce(function(s,j){return s+j.cantidad;},0);
+          var col=total>=0?'var(--success)':'var(--red)';
+          return '<div style="padding:12px 16px;border-bottom:1px solid var(--border)">'+
+            '<div style="display:flex;justify-content:space-between;margin-bottom:6px">'+
+              '<div style="font-size:11px;color:var(--muted)">'+(a.notas||a.fecha)+'</div>'+
+              '<div style="display:flex;gap:8px;align-items:center">'+
+                '<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:'+col+'">'+(total>=0?'+':'')+total+'€</div>'+
+                '<button onclick="borrarApuesta(\''+a.id+'\')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">×</button></div></div>'+
+            '<div style="display:flex;flex-direction:column;gap:4px">'+a.jugadores.map(function(j){
+              var jcol=j.cantidad>=0?'var(--success)':'var(--red)';
+              return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface2);border-radius:8px">'+
+                '<span style="font-size:13px;font-weight:600">'+j.nombre+'</span>'+
+                '<span style="font-size:13px;font-weight:700;color:'+jcol+'">'+(j.cantidad>=0?'+':'')+j.cantidad+'€</span></div>';
+            }).join('')+'</div></div>';
+        }).join('')
+      )+'</div>';
+  renderApJugadoresList();
+}
+
+function renderApJugadoresList(){
+  var el=document.getElementById('ap-jugadores-list');if(!el)return;
+  if(!apuestaJugadores.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Añade jugadores arriba</div>';return;}
+  el.innerHTML=apuestaJugadores.map(function(j,i){
+    return '<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:10px;padding:10px 12px">'+
+      '<div style="flex:1;font-size:14px;font-weight:600">'+j.nombre+'</div>'+
+      '<div style="display:flex;align-items:center;gap:6px">'+
+        '<span style="font-size:12px;color:var(--muted)">€</span>'+
+        '<input type="number" value="'+j.cantidad+'" onchange="apCantidad('+i+',this.value)" placeholder="0" style="width:70px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:700;text-align:center;outline:none">'+
+        '<button onclick="apEliminar('+i+')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">×</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+function apAñadirJugador(){var input=document.getElementById('ap-nuevo-nombre');var nombre=input.value.trim();if(!nombre){showToast('⚠️ Escribe el nombre');return;}apuestaJugadores.push({nombre:nombre,cantidad:0,pagado:false});input.value='';renderApJugadoresList();}
+function apCantidad(i,val){apuestaJugadores[i].cantidad=parseFloat(val)||0;}
+function apEliminar(i){apuestaJugadores.splice(i,1);renderApJugadoresList();}
+
+function guardarApuesta(){
+  if(!apuestaJugadores.length){showToast('⚠️ Añade al menos un jugador');return;}
+  var fecha=document.getElementById('ap-fecha').value;
+  var notas=document.getElementById('ap-notas').value.trim();
+  var apuestas=getApuestas();
+  apuestas.push({id:Date.now().toString(),fecha:fecha,notas:notas,jugadores:JSON.parse(JSON.stringify(apuestaJugadores))});
+  saveApuestas(apuestas);apuestaJugadores=[];document.getElementById('ap-notas').value='';
+  renderApuestas();var neto=apuestaJugadores.reduce?0:apuestas[apuestas.length-1].jugadores.reduce(function(s,j){return s+j.cantidad;},0);
+  showToast('💰 Apuesta guardada');
+}
+
+function borrarApuesta(id){saveApuestas(getApuestas().filter(function(a){return a.id!==id;}));renderApuestas();}
+
+// ═══════════════════════════════════════════
+// DIETA
+// ═══════════════════════════════════════════
+function switchDietTab(tab,btn){
+  currentDietTab=tab;
+  document.querySelectorAll('#screen-diet .htab').forEach(function(t){t.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderDiet(tab);
+}
+
+function renderDiet(tab){
+  var c=document.getElementById('diet-container');
+  if(tab==='peso'){renderPeso();return;}
+  if(tab==='campo'){
+    c.innerHTML=DIETA.campo.map(function(item){
+      return '<div class="card" style="padding:16px"><div style="font-size:14px;font-weight:700;margin-bottom:6px">'+item.titulo+'</div><div style="font-size:13px;color:var(--muted);line-height:1.6">'+item.desc+'</div></div>';
+    }).join('');return;
+  }
+  if(tab==='compra'){renderCompra(c);return;}
+  // semana
+  var mealState;try{mealState=JSON.parse(localStorage.getItem(PFX+'j_meals')||'{}');}catch(e){mealState={};}
+  c.innerHTML=DIETA.semana.map(function(day,di){
+    var done=day.comidas.filter(function(_,mi){return mealState[di+'_'+mi];}).length;
+    return '<div class="meal-card">'+
+      '<div class="meal-header" onclick="togglePanel(this)">'+
+        '<div style="flex:1"><div class="meal-day">'+day.dia+'</div><div class="meal-day-sub">'+day.tipo+'</div>'+
+        '<div style="font-size:11px;color:var(--greenl);margin-top:2px">'+(done>0?done+'/'+day.comidas.length+' ✓':'')+'</div></div>'+
+        '<div class="meal-kcal">~'+day.kcal+' kcal</div></div>'+
+      '<div style="display:none">'+
+        day.comidas.map(function(m,mi){
+          var ck=!!mealState[di+'_'+mi];
+          return '<div class="meal-item" style="opacity:'+(ck?.55:1)+'">'+
+            '<div style="display:flex;gap:12px;align-items:flex-start" onclick="toggleMeal('+di+','+mi+')">'+
+              '<div class="chk-box" style="width:22px;height:22px;border-radius:6px;border:2px solid '+(ck?'var(--greenl)':'var(--border)')+';background:'+(ck?'var(--greenl)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;cursor:pointer">'+
+                (ck?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+
+              '</div>'+
+              '<div style="flex:1"><div class="meal-type">'+m.tipo+'</div><div class="meal-name" style="text-decoration:'+(ck?'line-through':'none')+'">'+m.nombre+'</div>'+
+                '<div class="meal-desc">'+m.desc+'</div>'+
+                '<div class="meal-macros"><span class="macro p">P '+m.p+'g</span><span class="macro c">C '+m.c+'g</span><span class="macro g">G '+m.g+'g</span><span class="macro" style="color:var(--accent);font-weight:700">'+m.kcal+' kcal</span></div>'+
+                (m.tip?'<div class="golf-tip">⛳ '+m.tip+'</div>':'')+
+              '</div></div></div>';
+        }).join('')+'</div></div>';
+  }).join('');
+}
+
+function toggleMeal(di,mi){
+  var s;try{s=JSON.parse(localStorage.getItem(PFX+'j_meals')||'{}');}catch(e){s={};}
+  s[di+'_'+mi]=!s[di+'_'+mi];localStorage.setItem(PFX+'j_meals',JSON.stringify(s));
+  renderDiet('semana');
+}
+
+// ═══════════════════════════════════════════
+// PESO
+// ═══════════════════════════════════════════
+function renderPeso(){
+  var c=document.getElementById('diet-container');
+  var hist=getPesoHist();
+  var pesoActual=hist.length?hist[hist.length-1].kg:ALUMNO.pesoInicial;
+  var pesoObj=parseFloat(ls('peso_obj')||ALUMNO.pesoObjetivo);
+  var total=ALUMNO.pesoInicial-pesoObj;
+  var bajado=ALUMNO.pesoInicial-pesoActual;
+  var pct=Math.max(0,Math.min(100,Math.round((bajado/total)*100)));
+  var hoy=new Date().toISOString().slice(0,10);
+  c.innerHTML=
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px">'+
+      '<div style="padding:16px 18px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+          '<div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:.8px">Peso actual</div>'+
+            '<div style="font-family:\'DM Serif Display\',serif;font-size:72px;line-height:.9;color:var(--text);margin-top:4px">'+pesoActual+'</div>'+
+            '<div style="font-size:13px;color:var(--muted)">kg · en ayunas</div></div>'+
+          '<div style="text-align:right"><div style="font-size:11px;color:var(--muted)">OBJETIVO</div>'+
+            '<div style="font-family:\'DM Serif Display\',serif;font-size:36px;color:var(--gold)">'+pesoObj+'</div>'+
+            '<div style="font-size:11px;color:var(--muted)">kg</div></div></div>'+
+        '<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">'+
+          '<span>Inicio: '+ALUMNO.pesoInicial+' kg</span><span>'+pct+'%</span><span>Meta: '+pesoObj+' kg</span></div>'+
+          '<div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden">'+
+            '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--orange),var(--greenl));border-radius:3px"></div></div>'+
+          (bajado>0?'<div style="font-size:11px;color:var(--greenl);margin-top:5px">Has bajado '+bajado.toFixed(1)+' kg · Faltan '+(pesoActual-pesoObj).toFixed(1)+' kg</div>':'')+'</div></div></div>'+
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">'+
+      '<div style="font-size:13px;font-weight:700;margin-bottom:10px">Registrar peso de hoy</div>'+
+      '<div style="display:flex;gap:8px">'+
+        '<input type="number" id="peso-input" placeholder="Ej: 90.5" step="0.1" min="40" max="200" class="field-input" style="margin-top:0">'+
+        '<button onclick="guardarPeso()" style="padding:12px 16px;background:var(--green);border:none;border-radius:8px;color:#fff;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0">Guardar</button></div></div>'+
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">'+
+      '<div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700">Historial ('+hist.length+')</div>'+
+      (hist.length===0?'<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Sin registros aún</div>':
+        hist.slice().reverse().slice(0,15).map(function(r,i,arr){
+          var prev=i<arr.length-1?arr[i+1].kg:null;
+          var delta=prev!==null?(r.kg-prev).toFixed(1):null;
+          var deltaCol=delta!==null?(parseFloat(delta)<0?'var(--greenl)':parseFloat(delta)>0?'var(--orange)':'var(--muted)'):'var(--muted)';
+          return '<div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">'+
+            '<div style="font-size:11px;color:var(--muted);min-width:70px">'+r.fecha+'</div>'+
+            '<div style="font-size:15px;font-weight:700;flex:1">'+r.kg+' kg</div>'+
+            (delta?'<div style="font-size:12px;font-weight:600;color:'+deltaCol+'">'+(parseFloat(delta)>0?'+':'')+delta+' kg</div>':'')+
+          '</div>';
+        }).join('')
+      )+'</div>';
+}
+
+function guardarPeso(){
+  var val=parseFloat(document.getElementById('peso-input').value);
+  if(isNaN(val)||val<40||val>200){showToast('⚠️ Peso no válido');return;}
+  var hist=getPesoHist();
+  var hoy=new Date();var fecha=hoy.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  hist.push({id:Date.now().toString(),kg:val,fecha:fecha,ts:hoy.toISOString()});
+  savePesoHist(hist);document.getElementById('peso-input').value='';
+  renderPeso();showToast('⚖️ '+val+' kg guardado');
+}
+
+// ═══════════════════════════════════════════
+// FÍSICO
+// ═══════════════════════════════════════════
+function renderFit(){
+  var state;try{state=JSON.parse(localStorage.getItem(PFX+'j_fit')||'{}');}catch(e){state={};}
+  document.getElementById('fit-container').innerHTML=FIT_PLAN.map(function(day,di){
+    var total=day.ejercicios.length;
+    var done=day.ejercicios.filter(function(_,ei){return state[di+'_'+ei];}).length;
+    var pct=Math.round((done/total)*100);var col=pct===100?'var(--greenl)':pct>0?'var(--gold)':'var(--border)';
+    return '<div class="fit-day">'+
+      '<div class="fit-day-header" onclick="togglePanel(this)">'+
+        '<div style="flex:1"><div class="fit-day-name">'+day.dia+'</div><div class="fit-day-sub">'+day.duracion+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+day.objetivo+'</div>'+
+          '<div style="display:flex;align-items:center;gap:8px;margin-top:6px">'+
+            '<div style="flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden">'+
+              '<div data-fit-bar="'+di+'" style="height:100%;width:'+pct+'%;background:'+col+';border-radius:2px"></div></div>'+
+            '<div data-fit-count="'+di+'" style="font-size:11px;color:'+col+';font-weight:700">'+done+'/'+total+'</div></div></div>'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" style="flex-shrink:0;margin-left:10px"><polyline points="6 9 12 15 18 9"/></svg></div>'+
+      '<div style="display:none">'+
+        '<div style="padding:10px 16px;background:rgba(200,90,42,.06);border-bottom:1px solid var(--border);font-size:12px;color:var(--orange);line-height:1.5">⚡ '+day.warning+'</div>'+
+        day.ejercicios.map(function(ex,ei){
+          var ck=!!state[di+'_'+ei];
+          return '<div class="fit-ex" onclick="toggleFitEx('+di+','+ei+')" style="cursor:pointer;opacity:'+(ck?.55:1)+'">'+
+            '<div style="display:flex;gap:12px;align-items:flex-start">'+
+              '<div class="chk-box" style="width:22px;height:22px;border-radius:6px;border:2px solid '+(ck?'var(--greenl)':'var(--border)')+';background:'+(ck?'var(--greenl)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">'+
+                (ck?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+
+              '</div>'+
+              '<div style="flex:1"><div class="fit-ex-name" style="text-decoration:'+(ck?'line-through':'none')+'">'+ex.nombre+'</div>'+
+                '<div class="fit-ex-sets">'+ex.series+'</div><div class="fit-ex-desc">'+ex.desc+'</div></div></div></div>';
+        }).join('')+
+        '<div style="padding:12px 16px;border-top:1px solid var(--border)">'+
+          '<button onclick="event.stopPropagation();resetFitDay('+di+')" style="padding:9px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--muted);font-family:\'DM Sans\',sans-serif;font-size:12px;cursor:pointer">Resetear día</button></div></div></div>';
+  }).join('');
+}
+
+function toggleFitEx(di,ei){
+  var state;try{state=JSON.parse(localStorage.getItem(PFX+'j_fit')||'{}');}catch(e){state={};}
+  state[di+'_'+ei]=!state[di+'_'+ei];localStorage.setItem(PFX+'j_fit',JSON.stringify(state));
+  renderFit();
+}
+
+function resetFitDay(di){
+  var state;try{state=JSON.parse(localStorage.getItem(PFX+'j_fit')||'{}');}catch(e){state={};}
+  FIT_PLAN[di].ejercicios.forEach(function(_,ei){delete state[di+'_'+ei];});
+  localStorage.setItem(PFX+'j_fit',JSON.stringify(state));renderFit();showToast('Día reseteado');
+}
+
+// ═══════════════════════════════════════════
+// INFORME
+// ═══════════════════════════════════════════
+function generarTextoInforme(){
+  var hcp=getHCP(),obj=getObj(),hist=getHist();
+  var total=sessions.length;
+  var avg=total?Math.round(sessions.reduce(function(s,x){return s+x.score;},0)/total):0;
+  var hcpEvol=hist.length>=2?ALUMNO.hcpInicial.toFixed(1)+' → '+hcp.toFixed(1):hcp.toFixed(1);
+  var pesoHist=getPesoHist();
+  var pesoActual=pesoHist.length?pesoHist[pesoHist.length-1].kg:ALUMNO.pesoInicial;
+  var rondas=getRondas();
+  var palos=getPalosActual();
+  var apuestas=getApuestas();
+  var neto=0;apuestas.forEach(function(a){a.jugadores.forEach(function(j){neto+=j.cantidad;});});
+  return '⛳ *Informe mensual — Golf Performance*\n\n'+
+    '👤 *Alumno:* Genaro González de la Peña Gil\n'+
+    '🏌️ *Club:* Real Club Pineda\n'+
+    '📅 *Fecha:* '+new Date().toLocaleDateString('es-ES')+'\n\n'+
+    '📊 *HCP:* '+hcp.toFixed(1)+' (objetivo: '+obj.toFixed(1)+')\n'+
+    '📈 *Evolución HCP:* '+hcpEvol+'\n'+
+    '⚖️ *Peso:* '+pesoActual+' kg (objetivo: '+ALUMNO.pesoObjetivo+' kg)\n'+
+    '🏋️ *Sesiones entreno:* '+total+' · Media '+avg+'%\n'+
+    '🔥 *Racha:* '+calcStreak()+' días\n'+
+    (rondas.length?'⛳ *Rondas ('+rondas.length+'):* '+rondas.slice(-1)[0].golpes+' golpes última ronda\n':'')+
+    '💰 *Balance apuestas:* '+(neto>=0?'+':'')+neto+'€\n\n'+
+    '📏 *Distancias clave:* Driver '+palos[0].metros+'m · H7 '+palos[5].metros+'m · PW '+palos[8].metros+'m\n\n'+
+    '— Generado desde Golf Performance App · '+new Date().toLocaleDateString('es-ES');
+}
+
+function enviarInformeEntrenador(){
+  var text=generarTextoInforme();
+  var notas=localStorage.getItem(PFX+'report_notes')||'';
+  if(notas)text+='\n\n📝 Notas: '+notas;
+  window.open('https://wa.me/'+ALUMNO.entrenador+'?text='+encodeURIComponent(text),'_blank');
+  showToast('📲 Abriendo WhatsApp...');
+}
+
+function exportarInforme(){navigate('ajustes');setTimeout(function(){switchAjustesTab('informe',document.querySelectorAll('#screen-ajustes .htab')[1]);},50);}
+
+// ═══════════════════════════════════════════
+// AJUSTES
+// ═══════════════════════════════════════════
+function switchAjustesTab(tab,btn){
+  document.querySelectorAll('#screen-ajustes .htab').forEach(function(t){t.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  var configEl=document.getElementById('ajustes-config');
+  var informeEl=document.getElementById('ajustes-informe');
+  if(tab==='config'){configEl.style.display='block';informeEl.style.display='none';}
+  else{configEl.style.display='none';informeEl.style.display='block';renderReport();}
+}
+
+function renderReport(){
+  var c=document.getElementById('ajustes-informe');
+  var hcp=getHCP(),obj=getObj(),hist=getHist(),total=sessions.length;
+  var avg=total?Math.round(sessions.reduce(function(s,x){return s+x.score;},0)/total):0;
+  var pesoHist=getPesoHist();var pesoActual=pesoHist.length?pesoHist[pesoHist.length-1].kg:ALUMNO.pesoInicial;
+  var rondas=getRondas();
+  var apuestas=getApuestas();var neto=0;apuestas.forEach(function(a){a.jugadores.forEach(function(j){neto+=j.cantidad;});});
+  var pct=Math.max(0,Math.min(100,Math.round(((ALUMNO.hcpInicial-hcp)/(ALUMNO.hcpInicial-obj))*100)));
+  var fecha=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+  c.innerHTML=
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px">'+
+      '<div style="background:var(--accent);padding:16px 18px">'+
+        '<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Informe de progreso</div>'+
+        '<div style="font-family:\'DM Serif Display\',serif;font-size:18px;color:#fff;margin-top:2px">⛳ Genaro · '+fecha+'</div>'+
+        '<div style="display:flex;justify-content:space-between;margin-top:10px">'+
+          '<div><div style="font-family:\'DM Serif Display\',serif;font-size:44px;line-height:1;color:#fff">'+hcp.toFixed(1)+'</div>'+
+            '<div style="font-size:10px;color:rgba(255,255,255,.7)">HCP actual · Obj: '+obj.toFixed(1)+'</div></div>'+
+          '<div style="text-align:right">'+
+            '<div style="font-size:24px;font-weight:700;color:#fff">'+pesoActual+' kg</div>'+
+            '<div style="font-size:10px;color:rgba(255,255,255,.7)">Peso · Obj: '+ALUMNO.pesoObjetivo+' kg</div></div></div>'+
+        '<div style="margin-top:10px;height:5px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden">'+
+          '<div style="height:100%;width:'+pct+'%;background:#fff;border-radius:3px"></div></div>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:4px">'+pct+'% del objetivo HCP · '+ALUMNO.hcpInicial+' → '+obj.toFixed(1)+'</div>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border)">'+
+        [{l:'Sesiones',v:total,i:'🏋️'},{l:'Media',v:avg+'%',i:'📊'},{l:'Balance',v:(neto>=0?'+':'')+neto+'€',i:'💰'}].map(function(k,i){
+          return '<div style="padding:12px 8px;text-align:center'+(i<2?';border-right:1px solid var(--border)':'')+'">'+
+            '<div style="font-size:18px">'+k.i+'</div>'+
+            '<div style="font-family:\'DM Serif Display\',serif;font-size:20px;color:var(--accent);margin-top:2px">'+k.v+'</div>'+
+            '<div style="font-size:9px;color:var(--muted);text-transform:uppercase">'+k.l+'</div></div>';
+        }).join('')+'</div></div>'+
+    '<div class="report-section"><h3>📝 Notas para el entrenador</h3>'+
+      '<textarea id="report-notes" rows="4" placeholder="Ej: Mejoré el approach, pero sigo con el slice en driver..." style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:13px;resize:none;outline:none;line-height:1.5">'+(localStorage.getItem(PFX+'report_notes')||'')+'</textarea>'+
+      '<button onclick="localStorage.setItem(\''+PFX+'report_notes\',document.getElementById(\'report-notes\').value);showToast(\'✅ Notas guardadas\')" style="margin-top:8px;padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--accent);font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">Guardar notas</button>'+
+    '</div>'+
+    '<button class="report-btn" onclick="enviarInformeEntrenador()">'+
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>'+
+      'Enviar informe por WhatsApp'+
+    '</button>';
+}
+
+function guardarObjetivoAjustes(){
+  var val=parseFloat(document.getElementById('obj-input-ajustes').value);
+  if(isNaN(val)||val<0||val>54){showToast('⚠️ Objetivo inválido');return;}
+  ss('obj',val);showToast('🎯 Objetivo: HCP '+val.toFixed(1));renderHome();
+}
+
+function borrarTodo(){
+  document.getElementById('modal-title').textContent='🗑️ Borrar todo';
+  document.getElementById('modal-body').textContent='¿Borrar absolutamente todos los datos? No se puede deshacer.';
+  document.getElementById('modal-confirm').textContent='Borrar todo';
+  document.getElementById('modal-confirm').onclick=function(){
+    Object.keys(localStorage).filter(function(k){return k.startsWith(PFX);}).forEach(function(k){localStorage.removeItem(k);});
+    location.reload();
+  };
+  document.getElementById('modal').classList.add('open');
+}
+
+function exportarBackup(){
+  var data={v:1,nombre:'Genaro',sessions:sessions,hcp:ls('hcp'),obj:ls('obj'),hist:ls('hcp_hist'),peso:ls('peso_hist'),rondas:ls('rondas'),apuestas:ls('apuestas'),palos:ls('palos_hist'),date:new Date().toISOString()};
+  var code=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  if(navigator.clipboard){navigator.clipboard.writeText(code).then(function(){showToast('✅ Backup copiado');});}
+  else{var ta=document.getElementById('backup-textarea');ta.style.display='block';ta.value=code;}
+}
+
+function importarBackup(){
+  var ta=document.getElementById('backup-textarea');var btn=document.getElementById('backup-import-btn');
+  var vis=ta.style.display!=='none';ta.style.display=vis?'none':'block';btn.style.display=vis?'none':'block';
+}
+
+function confirmarImport(){
+  var code=document.getElementById('backup-textarea').value.trim();if(!code){showToast('⚠️ Pega primero tu código');return;}
+  try{
+    var data=JSON.parse(decodeURIComponent(escape(atob(code))));
+    document.getElementById('modal-title').textContent='⬇️ Restaurar backup';
+    document.getElementById('modal-body').textContent='Se restaurarán los datos del '+new Date(data.date).toLocaleDateString('es-ES');
+    document.getElementById('modal-confirm').textContent='Restaurar';
+    document.getElementById('modal-confirm').onclick=function(){
+      if(data.sessions){sessions=data.sessions;saveAll();}
+      if(data.hcp)ss('hcp',data.hcp);if(data.obj)ss('obj',data.obj);
+      if(data.hist)ss('hcp_hist',data.hist);if(data.peso)ss('peso_hist',data.peso);
+      if(data.rondas)ss('rondas',data.rondas);if(data.apuestas)ss('apuestas',data.apuestas);
+      if(data.palos)ss('palos_hist',data.palos);
+      closeModal();renderHome();showToast('✅ Datos restaurados');
+    };
+    document.getElementById('modal').classList.add('open');
+  }catch(e){showToast('❌ Código inválido');}
+}
+
+
+// ═══════════════════════════════════════════
+// COMPRA — checkboxes interactivos
+// ═══════════════════════════════════════════
+function getCompraState(){try{return JSON.parse(localStorage.getItem(PFX+'compra')||'{}');}catch(e){return{};}}
+function saveCompraState(s){localStorage.setItem(PFX+'compra',JSON.stringify(s));}
+
+function renderCompra(c){
+  var state=getCompraState();
+  var total=0,done=0;
+  DIETA.compra.forEach(function(cat){total+=cat.items.length;cat.items.forEach(function(item,ii){var key=cat.categoria+'_'+ii;if(state[key])done++;});});
+  var pct=total?Math.round((done/total)*100):0;
+
+  var html=
+    // CABECERA + PROGRESO
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+        '<div style="font-size:13px;color:var(--muted);line-height:1.6">Lista semanal · Ayuno 16:8 · Bajo en carbos</div>'+
+        '<div style="font-size:13px;font-weight:700;color:'+(pct===100?'var(--success)':'var(--accent)')+'">'+done+'/'+total+'</div>'+
+      '</div>'+
+      '<div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:12px">'+
+        '<div style="height:100%;width:'+pct+'%;background:'+(pct===100?'var(--success)':'var(--accent)')+';border-radius:3px;transition:width .4s ease"></div>'+
+      '</div>'+
+      // BOTONES
+      '<div style="display:flex;gap:8px">'+
+        '<button onclick="guardarCompra()" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--green);color:#fff;font-family:DM Sans,sans-serif;font-size:13px;font-weight:700;cursor:pointer">💾 Guardar lista</button>'+
+        '<button onclick="nuevaCompra()" style="flex:1;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--muted);font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer">🔄 Nueva compra</button>'+
+      '</div>'+
+    '</div>'+
+    // CATEGORÍAS CON CHECKBOXES
+    DIETA.compra.map(function(cat){
+      var catDone=cat.items.filter(function(item,ii){return state[cat.categoria+'_'+ii];}).length;
+      return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px">'+
+        '<div style="padding:11px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">'+
+          '<div style="font-size:13px;font-weight:700">'+cat.categoria+'</div>'+
+          '<div style="font-size:11px;color:'+(catDone===cat.items.length&&cat.items.length>0?'var(--success)':'var(--muted)')+'">'+catDone+'/'+cat.items.length+'</div>'+
+        '</div>'+
+        cat.items.map(function(item,ii){
+          var key=cat.categoria+'_'+ii;
+          var ck=!!state[key];
+          return '<div onclick="toggleCompraItem(\"'+key+'\")" style="padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;transition:opacity .2s;opacity:'+(ck?0.45:1)+';background:'+(ck?'rgba(45,138,78,.04)':'transparent')+'">'+
+            '<div style="width:24px;height:24px;border-radius:7px;border:2px solid '+(ck?'var(--success)':'var(--border)')+';background:'+(ck?'var(--success)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s">'+
+              (ck?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+
+            '</div>'+
+            '<div style="flex:1">'+
+              '<div style="font-size:13px;font-weight:600;color:var(--text);text-decoration:'+(ck?'line-through':'none')+';color:'+(ck?'var(--muted)':'var(--text)')+'">'+item.nombre+'</div>'+
+              (item.nota?'<div style="font-size:11px;color:var(--muted);margin-top:1px">'+item.nota+'</div>':'')+
+            '</div>'+
+            '<div style="font-size:13px;font-weight:700;color:'+(ck?'var(--success)':'var(--greenl)')+'">'+item.gramos+'</div>'+
+          '</div>';
+        }).join('')+
+      '</div>';
+    }).join('');
+
+  c.innerHTML=html;
+}
+
+function toggleCompraItem(key){
+  var state=getCompraState();
+  state[key]=!state[key];
+  saveCompraState(state);
+  renderCompra(document.getElementById('diet-container'));
+  if(navigator.vibrate)navigator.vibrate(10);
+}
+
+function guardarCompra(){
+  var state=getCompraState();
+  var total=0,done=0;
+  DIETA.compra.forEach(function(cat){total+=cat.items.length;cat.items.forEach(function(item,ii){if(state[cat.categoria+'_'+ii])done++;});});
+  showToast('💾 Lista guardada · '+done+'/'+total+' productos');
+}
+
+function nuevaCompra(){
+  document.getElementById('modal-title').textContent='🔄 Nueva compra';
+  document.getElementById('modal-body').textContent='¿Deseleccionar todos los productos? Útil para empezar la compra de la semana siguiente.';
+  document.getElementById('modal-confirm').textContent='Nueva compra';
+  document.getElementById('modal-confirm').style.background='var(--accent)';
+  document.getElementById('modal-confirm').onclick=function(){
+    saveCompraState({});
+    closeModal();
+    renderCompra(document.getElementById('diet-container'));
+    showToast('🛒 Lista limpia — lista para la próxima compra');
+  };
+  document.getElementById('modal').classList.add('open');
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function togglePanel(header){var panel=header.nextElementSibling;panel.style.display=panel.style.display==='none'?'block':'none';}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function init(){
+  loadAll();
+  if(!ls('hcp'))ss('hcp',ALUMNO.hcpInicial);
+  if(!ls('obj'))ss('obj',ALUMNO.hcpObjetivo);
+  if(!ls('peso_obj'))ss('peso_obj',ALUMNO.pesoObjetivo);
+  if(!getPalosHist().length){
+    var hoy=new Date();
+    savePalosHist([{fecha:hoy.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'}),ts:hoy.toISOString(),palos:PALOS_INIT.map(function(p){return{palo:p.palo,metros:p.metros};})}]);
+  }
+  renderHome();switchDay(1);
+}
+
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+</script>
+</body>
+</html>
